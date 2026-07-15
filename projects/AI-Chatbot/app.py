@@ -11,26 +11,35 @@ client =OpenAI(
     api_key=api_key,
     base_url="https://api.groq.com/openai/v1"
 )
+messages = [
+    {
+        "role":"system",
+        "content":"You are a helpful AI tutor."
+    }
+]
 
 while True:
-    user_questions=input("\nYou : ")
 
-    if user_questions.lower()=="exit":
+    user_question = input("\nYou : ")
+
+    if user_question.lower() == "exit":
         print("\n👋 Goodbye!")
         break
-    response = client.chat.completions.create(
-    model=model_name,
-    messages=[
+
+    messages.append(
         {
             "role":"user",
-            # "content":"What is AI?"
-            "content":user_questions
+            "content":user_question
         }
-        ]
-        )
-    print("\nAI : ")
-    print(response.choices[0].message.content)
+    )
 
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=messages
+    )
+
+    print("\nAI :")
+    print(response.choices[0].message.content)
 
 
 
