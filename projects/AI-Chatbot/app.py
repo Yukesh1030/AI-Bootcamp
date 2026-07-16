@@ -22,8 +22,9 @@ while True:
 
     user_question = input("\nYou : ")
 
-    if user_question.lower() == "exit":
+    if user_question.lower() == "exit" or user_question.lower() == "stop":
         print("\n👋 Goodbye!")
+        # print(messages)
         break
 
     messages.append(
@@ -35,11 +36,20 @@ while True:
 
     response = client.chat.completions.create(
         model=model_name,
-        messages=messages
+        messages=messages,
+        stream=True
     )
 
     print("\nAI :")
-    print(response.choices[0].message.content)
+    full_response = ""
+    for chunk in response:
+        if chunk.choices[0].delta.content:
+            token = chunk.choices[0].delta.content
+            full_response+=token
+            print(token,end="",flush=True)
+    print()
+
+    # print(response.choices[0].message.content)
 
 
 
