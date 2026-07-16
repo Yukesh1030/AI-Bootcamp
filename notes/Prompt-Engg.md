@@ -571,3 +571,376 @@ Test it with five different AI-related questions and observe how the style chang
 
 
 
+Lesson 11.3 – Zero-Shot, One-Shot & Few-Shot Prompting
+Before We Start
+
+Imagine you're hiring a new employee.
+
+You ask:
+
+"Write a professional email."
+
+The employee writes something.
+
+Now imagine you first show them one example of a good email.
+
+Do you think their next email will be better?
+
+✅ Yes.
+
+Now imagine you show them five examples.
+
+Even better.
+
+The same principle applies to LLMs.
+
+The Three Prompting Techniques
+Prompt Engineering
+
+│
+
+├── Zero-Shot
+
+├── One-Shot
+
+└── Few-Shot
+1️⃣ Zero-Shot Prompting
+Definition
+
+You ask the model to perform a task without giving any examples.
+
+Example:
+
+Translate this into French:
+
+Hello, how are you?
+
+No examples.
+
+The model uses its pre-trained knowledge.
+
+Another Example
+Summarize this article.
+
+Again,
+
+No example.
+
+This is Zero-Shot.
+
+Why is it called "Zero-Shot"?
+
+Because the model gets:
+
+0 Examples
+Real AI Example
+Explain RAG.
+
+The model already knows RAG.
+
+No examples needed.
+
+Advantages
+Fast
+Short prompt
+Low token cost
+Disadvantages
+
+Sometimes the model misunderstands your expectations.
+
+2️⃣ One-Shot Prompting
+
+Now suppose we give one example.
+
+Example:
+
+Convert text into JSON.
+
+Example:
+
+Input:
+John is 25 years old.
+
+Output:
+{
+"name":"John",
+"age":25
+}
+
+Now convert:
+
+Alice is 30 years old.
+
+Notice what happened?
+
+We taught the model the expected format.
+
+Why?
+
+Instead of guessing,
+
+the model copies the pattern.
+
+Visual
+One Example
+
+↓
+
+Learn Pattern
+
+↓
+
+Generate Similar Output
+Advantages
+More consistent output
+Better formatting
+Lower error rate
+3️⃣ Few-Shot Prompting
+
+Now we give multiple examples.
+
+Example:
+
+Sentiment Analysis
+
+Example 1
+
+Input:
+I love Python.
+
+Output:
+Positive
+
+-------------------
+
+Example 2
+
+Input:
+This movie is terrible.
+
+Output:
+Negative
+
+-------------------
+
+Example 3
+
+Input:
+The weather is okay.
+
+Output:
+Neutral
+
+-------------------
+
+Now classify:
+
+I hate traffic.
+
+The model sees the pattern across several examples.
+
+Why is Few-Shot Powerful?
+
+Imagine teaching a child.
+
+One example helps.
+
+Five examples make the rule much clearer.
+
+Visual Comparison
+Zero-Shot
+
+Question
+
+↓
+
+AI
+
+---------------
+
+One-Shot
+
+Example
+
+↓
+
+Question
+
+↓
+
+AI
+
+---------------
+
+Few-Shot
+
+Example
+
+Example
+
+Example
+
+↓
+
+Question
+
+↓
+
+AI
+Real Company Example
+
+Suppose you're building an AI Resume Analyzer.
+
+Zero-Shot
+Analyze this resume.
+One-Shot
+Example Resume
+
+↓
+
+Example Analysis
+
+↓
+
+Analyze this resume.
+Few-Shot
+Resume 1
+
+↓
+
+Analysis
+
+------------
+
+Resume 2
+
+↓
+
+Analysis
+
+------------
+
+Resume 3
+
+↓
+
+Analysis
+
+------------
+
+Analyze this new resume.
+
+The AI produces much more consistent evaluations.
+
+When Should You Use Each?
+Technique	When to Use
+Zero-Shot	General tasks the model already knows
+One-Shot	When you need a specific output format
+Few-Shot	When consistency and pattern matching are important
+Live Experiment
+
+Open your chatbot.
+
+Prompt 1 (Zero-Shot)
+Classify this review as Positive or Negative.
+
+"I love this laptop."
+Prompt 2 (One-Shot)
+Example:
+
+Review:
+I love Python.
+
+Sentiment:
+Positive
+
+Now classify:
+
+"I love this laptop."
+Prompt 3 (Few-Shot)
+Example 1
+
+Review:
+I love Python.
+
+Sentiment:
+Positive
+
+-----------------
+
+Example 2
+
+Review:
+This phone is terrible.
+
+Sentiment:
+Negative
+
+-----------------
+
+Example 3
+
+Review:
+The weather is okay.
+
+Sentiment:
+Neutral
+
+-----------------
+
+Review:
+I love this laptop.
+
+Compare the outputs.
+
+Why Does This Work?
+
+The LLM doesn't "memorize" these examples.
+
+Instead, it uses them as context.
+
+Remember the Transformer lesson?
+
+The examples become part of the messages sent to the model.
+
+The Transformer uses self-attention to recognize the pattern and continue it.
+
+Everything you've learned so far is connecting:
+
+Messages
+      ↓
+Context
+      ↓
+Transformer
+      ↓
+Self-Attention
+      ↓
+Pattern Recognition
+      ↓
+Response
+Interview Question ⭐⭐⭐⭐⭐
+What is the difference between Zero-Shot, One-Shot, and Few-Shot Prompting?
+
+Professional Answer:
+
+Zero-shot prompting asks the model to perform a task without providing examples. One-shot prompting includes a single example to demonstrate the expected format or behavior. Few-shot prompting provides multiple examples, allowing the model to infer patterns and produce more consistent, accurate outputs for similar tasks.
+
+🎯 Mini Assignment
+
+Create three prompts for the same task:
+
+Task: Extract information from a sentence.
+
+Sentence:
+
+Yukesh is 22 years old and lives in Salem.
+Write a Zero-Shot prompt.
+Write a One-Shot prompt.
+Write a Few-Shot prompt.
+
+Try them in your chatbot and compare the results.
+
+
+
+
+
