@@ -339,3 +339,339 @@ This is the lesson where you'll generate your first real embeddings instead of j
 
 
 
+Lesson 2 – Generate Your First Embedding
+🎯 Today's Goal
+
+By the end of this lesson, you'll understand this complete pipeline:
+
+Sentence
+    │
+    ▼
+Embedding Model
+    │
+    ▼
+384-Dimensional Vector
+    │
+    ▼
+Python List / NumPy Array
+    │
+    ▼
+Cosine Similarity
+Step 0 – Create a New Project
+
+Inside your AI-Bootcamp folder, create:
+
+AI-Bootcamp/
+│
+├── embeddings/
+│      ├── app.py
+│      ├── requirements.txt
+│      └── venv
+│
+├── chatbot/
+│
+└── ...
+
+Why a separate folder?
+
+Because every AI topic should be its own mini-project.
+
+This keeps your code clean and professional.
+
+Step 1 – Create a Virtual Environment
+
+Open the terminal:
+
+cd embeddings
+
+Then:
+
+python -m venv venv
+
+Activate it:
+
+Windows
+venv\Scripts\activate
+Step 2 – Install the Required Packages
+
+Run:
+
+pip install sentence-transformers
+🤔 Question
+
+Why didn't we install OpenAI?
+
+Because today we're not calling an API.
+
+Everything runs locally.
+
+What Happens Internally?
+
+When you run
+
+pip install sentence-transformers
+
+Python downloads the sentence-transformers library.
+
+But that library depends on another library.
+
+PyTorch
+
+The installation also pulls in:
+
+PyTorch
+
+Question:
+
+Why?
+
+Because the embedding model is a deep neural network.
+
+Neural networks need a framework to perform tensor operations.
+
+The most popular frameworks are:
+
+PyTorch
+TensorFlow
+
+sentence-transformers uses PyTorch.
+
+Architecture
+Your Code
+
+↓
+
+sentence-transformers
+
+↓
+
+PyTorch
+
+↓
+
+Neural Network
+
+↓
+
+Embedding Vector
+Step 3 – Create app.py
+
+Don't write everything.
+
+We'll build it slowly.
+
+First Import
+from sentence_transformers import SentenceTransformer
+Question
+
+What is SentenceTransformer?
+
+Think of it as a Python class.
+
+Remember OOP?
+
+When we create an object:
+
+model = SentenceTransformer(...)
+
+We're creating an object capable of generating embeddings.
+
+Visual
+SentenceTransformer
+
+↓
+
+Object
+
+↓
+
+encode()
+
+↓
+
+Vector
+Step 4 – Load the Model
+
+Write:
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+Let's stop here.
+
+Don't write anything else yet.
+
+What Happens Internally?
+
+This single line does a lot of work.
+
+First Run
+
+Since your computer doesn't have the model yet:
+
+Python
+
+↓
+
+Hugging Face
+
+↓
+
+Download Model
+
+↓
+
+Store Locally
+
+The model is downloaded and cached.
+
+Second Run
+
+Next time:
+
+Python
+
+↓
+
+Local Cache
+
+↓
+
+Load Model
+
+No download.
+
+Much faster.
+
+🤔 Why "sentence-transformers/all-MiniLM-L6-v2"?
+
+Let's break the name down.
+
+sentence-transformers
+
+Organization.
+
+all
+
+General-purpose embedding model.
+
+MiniLM
+
+A lightweight Transformer architecture.
+
+L6
+
+6 Transformer layers.
+
+Remember Transformers?
+
+GPT has many layers.
+
+MiniLM is much smaller and faster.
+
+v2
+
+Second version.
+
+Why Is It Popular?
+
+Because it's:
+
+✅ Small
+✅ Fast
+✅ Free
+✅ Good quality
+✅ Widely used for RAG
+
+That's why you saw it in your friend's project.
+
+Interview Question ⭐⭐⭐⭐⭐
+
+Why is all-MiniLM-L6-v2 widely used?
+
+Professional Answer:
+
+It provides a good balance between embedding quality, speed, and model size. It generates 384-dimensional embeddings, making it efficient for semantic search and RAG applications while requiring relatively low computational resources.
+
+Step 5 – Run It
+
+Your app.py should contain only:
+
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+print("Model Loaded Successfully!")
+What You Should See
+
+The first run may take a little time because the model downloads.
+
+Typical output:
+
+Downloading model...
+Loading...
+Model Loaded Successfully!
+
+On future runs:
+
+Model Loaded Successfully!
+
+Almost instantly.
+
+🧠 What's Really Happening?
+
+Think of the model like a dictionary.
+
+Not a normal dictionary.
+
+A mathematical dictionary.
+
+Instead of:
+
+Python
+
+↓
+
+Programming Language
+
+It learns:
+
+Python
+
+↓
+
+384 Numbers
+
+Those numbers capture semantic meaning.
+
+🎯 Your Task
+
+Complete these steps:
+
+Create the embeddings folder.
+Create and activate a virtual environment.
+Install sentence-transformers.
+Create app.py.
+Paste the two lines and the print.
+Run:
+python app.py
+📩 Send Me
+A screenshot of your terminal (especially the first run).
+Any errors, if they occur.
+🚀 Next Part of This Lesson
+
+Once you've successfully loaded the model, we'll continue with Lesson 2 – Part 2:
+
+You'll write your first call to:
+
+embedding = model.encode("Python is a programming language.")
+
+Then we'll inspect:
+
+Why the result has 384 values
+Why they're floating-point numbers
+What each dimension represents (and what it doesn't)
+How to compare two sentence embeddings using cosine similarity
+
+This is where embeddings become real instead of theoretical.
+
+
