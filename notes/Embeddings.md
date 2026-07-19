@@ -2120,3 +2120,327 @@ Rank by similarity
 Top 3 Results
 
 At that point, you'll have built the core retrieval mechanism behind production RAG systems—without using LangChain, ChromaDB, or any vector database. Once you understand this, learning those frameworks becomes much easier because you'll know exactly what they're doing under the hood.
+
+
+Lesson 4 – Build Your Own Semantic Search Engine
+
+This is one of my favorite lessons because you'll build a tiny search engine from scratch.
+
+🎯 Goal
+
+Instead of comparing every sentence manually, we want the computer to answer:
+
+"Which sentence is most similar to my query?"
+
+For example:
+
+Database:
+
+Python Developer
+
+Java Developer
+
+Machine Learning Engineer
+
+Football Player
+
+Doctor
+
+Data Scientist
+
+React Developer
+
+User types:
+
+Python Backend Engineer
+
+Your program should return:
+
+Top Results
+
+1. Python Developer
+
+2. Software Engineer
+
+3. Machine Learning Engineer
+
+This is Semantic Search.
+
+How Does Semantic Search Work?
+User Query
+      │
+      ▼
+Embedding Model
+      │
+      ▼
+Query Vector
+      │
+      ▼
+Compare with all stored vectors
+      │
+      ▼
+Similarity Scores
+      │
+      ▼
+Sort (Highest → Lowest)
+      │
+      ▼
+Top Results
+
+Notice something...
+
+❌ No LLM.
+
+Only:
+
+Embedding Model
+Cosine Similarity
+
+This is why retrieval is so fast.
+
+Step 1
+
+Create a new file:
+
+Embedding-Demo/
+
+semantic_search.py
+
+Your structure becomes:
+
+Embedding-Demo
+
+embedding.py
+
+similarity.py
+
+semantic_search.py ⭐
+
+README.md
+Step 2
+
+Import
+
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+Nothing new here.
+
+Step 3
+
+Load the model
+
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+Step 4
+
+Create your "database"
+
+documents = [
+
+"Python Developer",
+
+"Java Developer",
+
+"Machine Learning Engineer",
+
+"React Developer",
+
+"Football Player",
+
+"Doctor",
+
+"Software Engineer",
+
+"AI Engineer"
+
+]
+
+Question:
+
+Why do I call this documents instead of sentences?
+
+Because later these won't be single sentences.
+
+They'll be:
+
+PDF chunks
+Resume sections
+Website paragraphs
+Documentation
+
+This prepares you for RAG.
+
+Step 5
+
+Generate embeddings
+
+document_embeddings = model.encode(documents)
+
+Think of it as:
+
+8 Documents
+
+↓
+
+8 Vectors
+
+These vectors represent your searchable database.
+
+Step 6
+
+Take user input
+
+query = input("Enter your search: ")
+
+Example:
+
+Python Backend Engineer
+Step 7
+
+Generate the query embedding
+
+query_embedding = model.encode(query)
+
+Now both the documents and the query are represented as vectors in the same semantic space.
+
+Step 8 (Very Important)
+
+Compare the query vector with all document vectors
+
+similarity_scores = cosine_similarity(
+    [query_embedding],
+    document_embeddings
+)
+
+Why the square brackets?
+
+Because cosine_similarity() expects a 2D array.
+
+query_embedding is one vector.
+[query_embedding] makes it a list containing one vector.
+Step 9
+
+Print the scores
+
+print(similarity_scores)
+
+Example:
+
+[[0.91
+  0.82
+  0.78
+  0.74
+  0.15
+  0.11
+  0.86
+  0.88]]
+
+Each score corresponds to a document.
+
+Step 10
+
+Find the best match
+
+best_index = similarity_scores.argmax()
+
+argmax() returns the index of the highest value.
+
+Example:
+
+Scores
+
+0.91
+
+0.82
+
+0.78
+
+↓
+
+Highest = 0.91
+
+↓
+
+Index = 0
+Step 11
+
+Print the result
+
+print("\nBest Match:")
+print(documents[best_index])
+
+Output:
+
+Enter your search:
+
+Python Backend Engineer
+
+Best Match:
+
+Python Developer
+
+🎉 You just built your first semantic search engine.
+
+Complete Program
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+
+documents = [
+    "Python Developer",
+    "Java Developer",
+    "Machine Learning Engineer",
+    "React Developer",
+    "Football Player",
+    "Doctor",
+    "Software Engineer",
+    "AI Engineer"
+]
+
+document_embeddings = model.encode(documents)
+
+query = input("Enter your search: ")
+
+query_embedding = model.encode(query)
+
+similarity_scores = cosine_similarity(
+    [query_embedding],
+    document_embeddings
+)
+
+best_index = similarity_scores.argmax()
+
+print("\nBest Match:")
+print(documents[best_index])
+🧠 Interview Question ⭐⭐⭐⭐⭐
+What is Semantic Search?
+
+Professional Answer:
+
+Semantic search retrieves information based on the meaning of the query rather than exact keyword matching. It converts both the query and documents into embeddings, computes similarity scores (commonly using cosine similarity), and returns the most semantically relevant results.
+
+🎯 Assignment
+
+Test your program with these queries:
+
+Python Backend Engineer
+AI Researcher
+Frontend React
+Soccer Coach
+
+Observe which document is returned and ask yourself:
+
+Does the result make semantic sense?
+Is it matching meaning rather than exact words?
+🚀 What Comes After This?
+
+Once you complete this lesson, we'll move to Module 6 – Vector Databases.
+
+You'll finally understand why tools like ChromaDB exist.
+
+Instead of searching through 8 vectors, you'll learn how to search through 10 million vectors in milliseconds, which is exactly what production RAG systems do. This is the point where your AI applications start becoming scalable.
