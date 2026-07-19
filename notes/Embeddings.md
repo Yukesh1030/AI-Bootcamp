@@ -675,3 +675,736 @@ How to compare two sentence embeddings using cosine similarity
 This is where embeddings become real instead of theoretical.
 
 
+Module 5 — Embedding Models
+Lesson 2 — Generate Your First Embedding
+🎯 Today's Objective
+
+Today we are NOT building a chatbot.
+
+We are learning one small AI component called an Embedding Model.
+
+So we should not write this inside
+
+projects/
+    AI-Chatbot/
+
+because it has nothing to do with the chatbot.
+
+Professional developers always separate experiments from projects.
+
+Step 1
+Create a New Project
+
+Inside
+
+projects/
+
+Create a new folder.
+
+projects/
+│
+├── AI-Chatbot/
+│
+└── Embedding-Demo/
+
+Inside
+
+Embedding-Demo
+
+create
+
+Embedding-Demo
+│
+├── embedding.py
+│
+├── README.md
+│
+└── requirements.txt
+
+So your folder becomes
+
+AI-BOOTCAMP
+
+│
+
+├── projects
+
+│      │
+
+│      ├── AI-Chatbot
+
+│      │      app.py
+
+│      │
+
+│      └── Embedding-Demo
+
+│             embedding.py
+│             README.md
+│             requirements.txt
+
+Why?
+
+Because every concept becomes its own mini-project.
+
+Later you'll have
+
+projects/
+
+AI-Chatbot
+
+Embedding-Demo
+
+ChromaDB-Demo
+
+RAG-Demo
+
+LangChain-Demo
+
+CrewAI-Demo
+
+Resume-Analyzer
+
+Medical-AI
+
+...
+
+This is exactly how professionals organize learning repositories.
+
+Step 2
+
+Open Terminal
+
+Go to
+
+AI-BOOTCAMP
+
+NOT
+
+Embedding-Demo
+
+because your virtual environment is already here.
+
+Your terminal should show
+
+(venv)
+
+E:\learn\GenAI\AI-BOOTCAMP>
+Step 3
+
+Install the library
+
+pip install sentence-transformers
+Question
+
+Why here?
+
+Because
+
+your
+
+venv
+
+belongs to
+
+AI-BOOTCAMP
+
+Every project inside
+
+projects/
+
+shares the same virtual environment.
+
+This is completely fine while learning.
+
+Step 4
+
+Freeze the dependencies
+
+Again
+
+pip freeze > requirements.txt
+
+Notice
+
+this updates only
+
+AI-BOOTCAMP/
+
+requirements.txt
+
+NOT
+
+Embedding-Demo/
+
+For now that's okay.
+
+Later I'll teach you project-specific virtual environments.
+
+Step 5
+
+Open
+
+Embedding-Demo
+
+↓
+
+embedding.py
+
+This file will contain today's code.
+
+Step 6
+
+Write only ONE line
+
+from sentence_transformers import SentenceTransformer
+
+Don't write anything else.
+
+Stop.
+
+Let's understand this line.
+
+Question 1
+
+What is
+
+sentence_transformers
+
+Is it a model?
+
+No.
+
+It is a Python package.
+
+Think
+
+sentence_transformers
+
+↓
+
+Library
+
+Exactly like
+
+numpy
+
+pandas
+
+requests
+Question 2
+
+What is
+
+SentenceTransformer
+
+Notice
+
+Capital S
+
+Capital T
+
+That means
+
+it's a
+
+Class
+
+Remember OOP?
+
+Student()
+
+Employee()
+
+SentenceTransformer()
+
+Exactly the same concept.
+
+Internal Structure
+
+Imagine
+
+sentence_transformers
+
+│
+
+├── SentenceTransformer
+
+├── losses
+
+├── datasets
+
+├── models
+
+├── evaluation
+
+├── util
+
+We are importing only
+
+SentenceTransformer
+Why is it a Class?
+
+Because
+
+every model
+
+is an object.
+
+Example
+
+MiniLM
+
+↓
+
+Object
+MPNet
+
+↓
+
+Object
+BGE
+
+↓
+
+Object
+
+The class creates these objects.
+
+Visual
+SentenceTransformer
+
+(Class)
+
+        │
+
+        ▼
+
+model
+
+(Object)
+
+        │
+
+        ▼
+
+encode()
+
+save()
+
+tokenize()
+
+...
+Interview Question ⭐⭐⭐⭐⭐
+What is SentenceTransformer?
+
+Professional Answer:
+
+SentenceTransformer is the primary class provided by the sentence-transformers library. It loads pre-trained transformer-based embedding models and provides methods such as encode() to convert text into dense vector representations.
+
+🎯 Today's Mini Assignment
+
+Complete only these tasks:
+
+✅ Create the Embedding-Demo folder under projects/.
+✅ Create embedding.py, README.md, and requirements.txt inside it.
+✅ Install sentence-transformers in your existing venv.
+✅ Add only this import to embedding.py:
+from sentence_transformers import SentenceTransformer
+🚀 Our New Teaching Style
+
+From this point onward, we are not going to jump straight to complete programs.
+
+We'll build every project exactly like a real software team:
+
+Step 1: Folder structure
+Step 2: Why the folder exists
+Step 3: Create one file
+Step 4: Write one line of code
+Step 5: Understand what that line does internally
+Step 6: Move to the next line only after you understand the previous one
+
+This is how you'll develop a deep understanding instead of just copying code. Once you finish today's mini assignment, we'll continue with the next single line, where you'll instantiate the SentenceTransformer class and see what happens internally when a pre-trained model is loaded.
+
+Lesson 2 (Part 2)
+Loading Your First Embedding Model
+
+Currently your file contains only:
+
+from sentence_transformers import SentenceTransformer
+
+Nothing else.
+
+Step 7
+
+Now write only this line.
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+Don't run it yet.
+
+Let's understand every single character.
+
+Break the line into pieces
+model
+
+Question:
+
+What is model?
+
+It is simply a Python variable.
+
+Exactly like
+
+name = "Yukesh"
+
+age = 22
+
+Here,
+
+model = ...
+
+means
+
+Store the embedding model inside the variable named model.
+
+Next Part
+SentenceTransformer(...)
+
+Remember our OOP lessons?
+
+This is Object Creation.
+
+Exactly like
+
+student = Student()
+
+or
+
+car = Car()
+
+Here
+
+model = SentenceTransformer(...)
+
+means
+
+Create an object of the SentenceTransformer class.
+
+Question
+
+What object?
+
+Not a student.
+
+Not a car.
+
+An Embedding Model.
+
+Visualize it like this:
+
+SentenceTransformer (Class)
+
+        │
+
+        ▼
+
+MiniLM Model (Object)
+
+        │
+
+        ▼
+
+encode()
+
+save()
+
+tokenize()
+
+...
+The String
+
+Now look carefully.
+
+"sentence-transformers/all-MiniLM-L6-v2"
+
+Most beginners think
+
+"This is just a string."
+
+No.
+
+This string is actually an identifier.
+
+Think of it like a GitHub repository.
+
+owner/repository
+
+Example
+
+Yukesh1030/E-Commerce
+
+Similarly
+
+sentence-transformers/all-MiniLM-L6-v2
+
+means
+
+Organization
+
+↓
+
+sentence-transformers
+
+↓
+
+Model Name
+
+↓
+
+all-MiniLM-L6-v2
+
+This tells the library exactly which pre-trained model to download.
+
+Internal Working
+
+When Python reaches
+
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+
+it does NOT magically understand English.
+
+Instead, this happens.
+
+Python
+
+↓
+
+SentenceTransformer Library
+
+↓
+
+Check Local Cache
+
+↓
+
+Model Exists?
+First Time
+No
+
+↓
+
+Connect to Hugging Face
+
+↓
+
+Download Model
+
+↓
+
+Store in Cache
+
+↓
+
+Load into RAM
+
+↓
+
+Return model object
+Second Time
+Yes
+
+↓
+
+Load From Local Cache
+
+↓
+
+Done
+
+No internet required after the first download.
+
+What is Hugging Face?
+
+You'll hear this name every day in AI.
+
+Think of it as
+
+GitHub
+
+↓
+
+for AI Models
+
+Developers upload
+
+LLMs
+Embedding Models
+Vision Models
+Speech Models
+
+to Hugging Face.
+
+When we specify
+
+SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+
+the library knows exactly where to fetch it from.
+
+Later in this bootcamp we'll explore Hugging Face in depth.
+
+Why MiniLM?
+
+Question:
+
+Why don't we use GPT-4 or Llama-3 for embeddings?
+
+Because MiniLM is specifically trained to generate embeddings.
+
+It is:
+
+✅ Small
+
+✅ Fast
+
+✅ Lightweight
+
+✅ High Quality
+
+Perfect for RAG.
+
+What Does L6 Mean?
+MiniLM
+
+↓
+
+L6
+
+↓
+
+6 Transformer Layers
+
+Remember the Transformer lesson?
+
+Each layer gradually builds a richer understanding of the sentence.
+
+More layers usually mean:
+
+Better understanding
+More computation
+Slower inference
+
+MiniLM chooses a balance.
+
+What Happens in RAM?
+
+After executing
+
+model = SentenceTransformer(...)
+
+your computer's memory roughly looks like:
+
+RAM
+
+↓
+
+model
+
+↓
+
+MiniLM
+
+↓
+
+Vocabulary
+
+↓
+
+Weights
+
+↓
+
+Neural Network
+
+↓
+
+Tokenizer
+
+Nothing has been embedded yet.
+
+We've only loaded the model into memory.
+
+Question
+
+Has the sentence been converted into vectors?
+
+❌ No.
+
+We haven't provided any sentence.
+
+The model is just waiting.
+
+Think of it like opening Microsoft Word.
+
+Opening Word doesn't mean you've written a document.
+
+Interview Question ⭐⭐⭐⭐⭐
+What happens internally when you instantiate SentenceTransformer?
+
+Professional Answer:
+
+When a SentenceTransformer object is created, the library loads the specified pre-trained embedding model. On the first execution, the model is downloaded from Hugging Face and cached locally. On subsequent executions, it is loaded directly from the local cache into memory, making it ready to generate embeddings.
+
+🧠 Small Challenge
+
+Without looking at the next lesson, answer these two questions:
+
+Q1
+
+Why do we need to load the model before calling encode()?
+
+Q2
+
+After running:
+
+model = SentenceTransformer(...)
+
+has any embedding been generated?
+
+Why or why not?
+
+🚀 Next Lesson (Part 3)
+
+Once you answer these two questions, we'll write just one more line:
+
+sentence = "Python is a programming language."
+
+Then you'll learn how that simple sentence travels through:
+
+Sentence
+
+↓
+
+Tokenizer
+
+↓
+
+Token IDs
+
+↓
+
+Transformer
+
+↓
+
+Pooling
+
+↓
+
+384-Dimensional Vector
+
+This is the exact internal pipeline used by modern embedding models, and understanding it will make RAG and vector databases much easier to grasp.
