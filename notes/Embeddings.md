@@ -2444,3 +2444,496 @@ Once you complete this lesson, we'll move to Module 6 – Vector Databases.
 You'll finally understand why tools like ChromaDB exist.
 
 Instead of searching through 8 vectors, you'll learn how to search through 10 million vectors in milliseconds, which is exactly what production RAG systems do. This is the point where your AI applications start becoming scalable.
+
+
+Lesson 5 – Batch Embeddings & Performance
+🎯 Today's Goal
+
+Learn:
+
+Why model.encode() one sentence at a time is inefficient
+What Batch Processing is
+What batch_size means
+Why GPUs make embedding generation much faster
+Best practices for large datasets
+The Problem
+
+Suppose you have:
+
+1 Sentence
+
+Easy.
+
+embedding = model.encode(sentence)
+
+No issues.
+
+Now imagine your company has:
+
+1,000,000 resumes
+
+Can you do this?
+
+for resume in resumes:
+    embedding = model.encode(resume)
+
+Yes.
+
+But...
+
+It will be very slow.
+
+Why?
+
+Every call to model.encode() has overhead:
+
+Python
+
+↓
+
+Function Call
+
+↓
+
+Tokenizer
+
+↓
+
+Transformer
+
+↓
+
+Pooling
+
+↓
+
+Return Vector
+
+If you repeat this one million times, the overhead becomes huge.
+
+Batch Processing
+
+Instead of this:
+
+Resume 1
+
+↓
+
+Embedding
+
+↓
+
+Resume 2
+
+↓
+
+Embedding
+
+↓
+
+Resume 3
+
+↓
+
+Embedding
+
+We send all of them together.
+
+Resume 1
+
+Resume 2
+
+Resume 3
+
+Resume 4
+
+↓
+
+Embedding Model
+
+↓
+
+4 Embeddings
+
+One forward pass processes multiple inputs efficiently.
+
+Python Example
+
+Instead of
+
+documents = [
+    "Python Developer",
+    "Java Developer",
+    "AI Engineer"
+]
+
+for doc in documents:
+    embedding = model.encode(doc)
+
+Do this:
+
+embeddings = model.encode(documents)
+
+The model processes all documents together.
+
+What Happens Internally?
+
+Without batching:
+
+Sentence 1
+
+↓
+
+Transformer
+
+↓
+
+Done
+
+------------
+
+Sentence 2
+
+↓
+
+Transformer
+
+↓
+
+Done
+
+With batching:
+
+Sentence 1
+
+Sentence 2
+
+Sentence 3
+
+↓
+
+Transformer
+
+↓
+
+Sentence Embedding 1
+
+Sentence Embedding 2
+
+Sentence Embedding 3
+
+The GPU/CPU can process multiple inputs in parallel.
+
+Why is Batching Faster?
+
+Imagine washing clothes.
+
+Option 1
+
+Wash one shirt.
+
+Wait.
+
+Wash another shirt.
+
+Wait.
+
+Wash another shirt.
+
+Very slow.
+
+Option 2
+
+Put 20 shirts in the washing machine.
+
+Wash once.
+
+Much faster.
+
+The transformer works similarly.
+
+What is batch_size?
+
+Many models allow:
+
+embeddings = model.encode(
+    documents,
+    batch_size=32
+)
+
+Question:
+
+What does 32 mean?
+
+It means:
+
+Take 32 documents
+
+↓
+
+Generate embeddings
+
+↓
+
+Take next 32
+
+↓
+
+Generate embeddings
+
+Until everything is processed.
+
+Visual
+
+Suppose:
+
+100 Documents
+
+Batch size:
+
+20
+
+Processing:
+
+Batch 1
+
+20 Docs
+
+------------
+
+Batch 2
+
+20 Docs
+
+------------
+
+Batch 3
+
+20 Docs
+
+------------
+
+Batch 4
+
+20 Docs
+
+------------
+
+Batch 5
+
+20 Docs
+Why Not Set
+batch_size = 100000
+
+Because memory is limited.
+
+Every document consumes RAM or GPU memory.
+
+Too large a batch causes:
+
+Memory Overflow
+
+↓
+
+Out Of Memory (OOM)
+
+↓
+
+Program Crashes
+Choosing Batch Size
+
+Typical values:
+
+Device	Batch Size
+CPU	8–32
+Small GPU	32–64
+High-End GPU	128–512
+
+There is no universal "best" batch size.
+
+CPU vs GPU
+
+Suppose:
+
+1000 Sentences
+
+CPU:
+
+1 Worker
+
+↓
+
+Sentence
+
+↓
+
+Sentence
+
+↓
+
+Sentence
+
+GPU:
+
+Thousands of Cores
+
+↓
+
+Many Sentences Together
+
+That's why GPUs are much faster for deep learning workloads.
+
+Simple Benchmark
+
+Let's compare two approaches.
+
+Method 1
+for sentence in documents:
+    model.encode(sentence)
+Method 2
+model.encode(documents)
+
+Method 2 is almost always faster.
+
+Real Company Example
+
+Suppose LinkedIn wants embeddings for:
+
+50 Million Resumes
+
+They don't do:
+
+for resume in resumes:
+    model.encode(resume)
+
+Instead they:
+
+Batch
+
+↓
+
+GPU
+
+↓
+
+Store in Vector DB
+
+This pipeline runs continuously.
+
+Practical Exercise
+
+Create a new file:
+
+Embedding-Demo/
+
+batch_embedding.py
+
+Paste:
+
+from sentence_transformers import SentenceTransformer
+import time
+
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+documents = [
+    "Python Developer",
+    "Java Developer",
+    "Machine Learning Engineer",
+    "React Developer",
+    "AI Engineer",
+    "Backend Developer",
+    "Frontend Developer",
+    "Doctor",
+    "Lawyer",
+    "Football Player"
+]
+
+start = time.time()
+
+embeddings = model.encode(documents)
+
+end = time.time()
+
+print("Generated", len(embeddings), "embeddings")
+print("Time:", round(end - start, 4), "seconds")
+
+Run it.
+
+Observe:
+
+Number of embeddings
+Execution time
+Interview Questions ⭐⭐⭐⭐⭐
+1. What is batch processing?
+
+Answer:
+
+Batch processing is the technique of processing multiple inputs together in a single model execution, improving throughput and reducing computational overhead.
+
+2. Why is batching faster?
+
+Answer:
+
+Batching allows the CPU or GPU to process multiple inputs simultaneously, reducing repeated function-call overhead and making better use of hardware resources.
+
+3. What happens if the batch size is too large?
+
+Answer:
+
+If the batch size exceeds available memory, the application may run out of RAM or GPU memory, resulting in an Out Of Memory (OOM) error.
+
+🧠 Industry Insight
+
+When you upload a PDF to ChatGPT Enterprise or a company RAG application, the system doesn't process one paragraph at a time. The pipeline typically looks like this:
+
+PDF
+
+↓
+
+Chunking
+
+↓
+
+1000 Chunks
+
+↓
+
+Batch Embeddings
+
+↓
+
+Vector Database
+
+↓
+
+Ready for Search
+
+Batching is one of the reasons these systems can prepare large documents quickly.
+
+📌 What's Next?
+
+You've now learned:
+
+✅ How embeddings are generated
+✅ How similarity search works
+✅ How semantic search works
+✅ How to optimize embedding generation
+
+The next module is where everything comes together.
+
+🚀 Module 6 – Vector Databases (ChromaDB)
+
+This is one of the biggest milestones in the bootcamp.
+
+You'll finally understand why your friend's project contains files like:
+
+vector_store.py
+retriever.py
+chunking.py
+rag_chain.py
+
+We'll build our own vector database pipeline step by step, starting with:
+
+Lesson 1 – Why Normal Databases (MySQL/PostgreSQL) Are Not Enough for AI Applications?
+
+Once you understand that, ChromaDB will make perfect sense instead of feeling like "just another library."
