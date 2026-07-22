@@ -3098,3 +3098,363 @@ Groq LLM
 AI Answer
 
 🎉 That lesson is where you'll build your first complete RAG chatbot—the same architecture used in document Q&A systems and AI assistants in production. From there, you'll immediately recognize the purpose of files like retriever.py, vector_store.py, and rag_chain.py in your friend's GenAI project.
+
+Lesson 9 – Using Your Own Embedding Model with ChromaDB
+🎯 Why this lesson?
+
+Until now, ChromaDB has been doing this automatically:
+
+Document
+    │
+    ▼
+Default Embedding Model
+    │
+    ▼
+Vector
+    │
+    ▼
+Store in ChromaDB
+
+You never explicitly called an embedding model.
+
+That is convenient, but real-world AI applications almost never rely on the default embedding model.
+
+Instead, they choose one that fits their needs.
+
+Examples:
+
+Model	Use Case
+all-MiniLM-L6-v2	General semantic search
+BAAI/bge-small-en	High-quality retrieval
+OpenAI text-embedding-3-small	Production cloud applications
+Nomic Embed	Open-source RAG
+Why use your own embedding model?
+
+Imagine two companies.
+
+Company A
+
+Uses ChromaDB defaults.
+
+Documents
+      │
+Default Model
+      │
+Database
+
+Easy to start.
+
+Company B
+
+Uses
+
+Documents
+      │
+BAAI/bge-small-en
+      │
+Database
+
+They get:
+
+Better search accuracy
+More control
+Consistent embeddings across systems
+
+This is what most production systems do.
+
+Step 1 — Create a New Project
+
+Inside your projects folder:
+
+projects
+│
+├── AI-Chatbot
+├── Embedding-Demo
+├── ChromaDB-Demo
+│
+└── RAG-Retriever
+
+Create:
+
+RAG-Retriever
+Step 2 — Install a New Package
+
+Go into the project folder.
+
+cd projects
+mkdir RAG-Retriever
+cd RAG-Retriever
+
+Install:
+
+pip install sentence-transformers
+
+Then update:
+
+pip freeze > requirements.txt
+Step 3 — Create app.py
+
+Start with:
+
+from sentence_transformers import SentenceTransformer
+Step 4 — Load the Embedding Model
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+
+Does this look familiar?
+
+It should.
+
+You've already used exactly this model in Module 5.
+
+Step 5 — Generate an Embedding
+text = "Python is a programming language."
+
+embedding = model.encode(text)
+
+print(len(embedding))
+
+Output:
+
+384
+
+This confirms the model generates a 384-dimensional vector.
+
+🧠 Why are we doing this again?
+
+In Module 5, we generated embeddings to understand how they work.
+
+Now we're preparing to plug that embedding model into ChromaDB instead of relying on its default behavior.
+
+This gives us:
+
+Our Documents
+      │
+Our Embedding Model
+      │
+ChromaDB
+
+instead of:
+
+Our Documents
+      │
+Unknown Default Model
+      │
+ChromaDB
+Visual Comparison
+Before
+Python Document
+       │
+       ▼
+Default ChromaDB Model
+       │
+       ▼
+Embedding
+       │
+       ▼
+Vector Database
+After
+Python Document
+       │
+       ▼
+SentenceTransformer
+(all-MiniLM-L6-v2)
+       │
+       ▼
+Embedding
+       │
+       ▼
+ChromaDB
+
+Now you control the embedding pipeline.
+
+💡 Why does this matter for RAG?
+
+Remember your friend's project?
+
+pdf_loader.py
+chunking.py
+embeddings.py
+vector_store.py
+retriever.py
+rag_chain.py
+
+Notice something?
+
+There's a separate file called:
+
+embeddings.py
+
+Why?
+
+Because production projects don't let ChromaDB decide the embedding model.
+
+They generate embeddings themselves and then store those vectors.
+
+You're about to learn that exact architecture.
+
+🎯 Mini Assignment
+
+Create the new RAG-Retriever folder and complete these steps:
+
+Install sentence-transformers.
+Create app.py.
+Load all-MiniLM-L6-v2.
+Encode:
+Python is a programming language.
+Print:
+print(len(embedding))
+
+You should see:
+
+384
+🚀 Next Lesson (One of the Most Important in the Entire Bootcamp)
+
+We'll connect:
+
+SentenceTransformer
+        │
+        ▼
+Generate Embeddings
+        │
+        ▼
+Store Those Embeddings
+        │
+        ▼
+ChromaDB
+
+instead of letting ChromaDB generate them automatically.
+
+🎯 A Small Change in Teaching Pace
+
+From this point onward, I'm going to increase the pace slightly because you've demonstrated that you understand:
+
+✅ Embeddings
+✅ Cosine Similarity
+✅ Vector Databases
+✅ ChromaDB CRUD
+✅ Semantic Search
+
+These are the foundations. The next modules (RAG, LangChain, LangGraph, and AI Agents) build directly on them, and we'll spend more time on architecture and real-world implementation than on basic syntax. By the end of this bootcamp, you'll not only understand your friend's project—you'll be able to build an improved version of it yourself. 🚀
+
+Module 6 – Lesson 10 (One of the Most Important in the Entire Bootcamp)
+
+This lesson is where everything you've learned over the last several modules comes together.
+
+Until today, ChromaDB was doing this:
+
+Document
+   │
+   ▼
+ChromaDB
+(Default Embedding)
+   │
+   ▼
+Vector Database
+
+Today, you will generate the embeddings and store them yourself.
+
+This is how almost every production RAG system works.
+
+Goal
+
+Instead of:
+
+collection.add(
+    documents=[...]
+)
+
+We'll do:
+
+Document
+     │
+     ▼
+SentenceTransformer
+     │
+     ▼
+384-D Vector
+     │
+     ▼
+collection.add(
+    embeddings=[...]
+)
+
+This is the first time you'll understand why your friend's project separates:
+
+embeddings.py
+vector_store.py
+
+They are two independent responsibilities.
+
+Step 1 — Create a New File
+
+Inside:
+
+projects/RAG-Retriever/
+
+Create:
+
+manual_embeddings.py
+Step 2 — Import Libraries
+import chromadb
+from sentence_transformers import SentenceTransformer
+Step 3 — Load the Embedding Model
+model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2"
+)
+Step 4 — Connect to ChromaDB
+client = chromadb.PersistentClient(
+    path="./chroma_db"
+)
+Step 5 — Create a Fresh Collection
+try:
+    client.delete_collection("manual_vectors")
+except Exception:
+    pass
+
+collection = client.get_or_create_collection(
+    name="manual_vectors"
+)
+Step 6 — Create Documents
+documents = [
+    "Python is used for AI.",
+    "Java is used for enterprise applications.",
+    "Docker packages applications into containers."
+]
+Step 7 — Generate Embeddings Yourself
+
+This is the key difference.
+
+embeddings = model.encode(documents)
+
+Now print:
+
+print(type(embeddings))
+print(len(embeddings))
+print(len(embeddings[0]))
+
+Expected output:
+
+<class 'numpy.ndarray'>
+
+3
+
+384
+
+You've just created three embedding vectors yourself.
+
+📌 Stop Here
+
+Don't add them to ChromaDB yet.
+
+I want you to inspect the embeddings variable and understand what it contains.
+
+In the next lesson, we'll take those vectors and store them manually using:
+
+collection.add(
+    embeddings=embeddings.tolist(),
+    ...
+)
+
+When you complete that, you'll fully understand why production projects have separate embeddings.py and vector_store.py files, and you'll be ready to move into the RAG module where these pieces come together into a complete document question-answering system.
