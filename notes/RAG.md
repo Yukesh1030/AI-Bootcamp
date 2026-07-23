@@ -825,3 +825,1213 @@ How to extract text page by page.
 How to prepare the extracted text for chunking.
 
 At the end of Lesson 3, your application will be able to open a PDF and extract its contents automatically—the first real step in a production RAG pipeline.
+
+
+Until now we've manually written:
+
+documents = [
+    "Python is a programming language",
+    "Java is an OOP language"
+]
+
+Real companies don't do this.
+
+Instead they have
+
+PDFs
+Word files
+Excel files
+Websites
+Database records
+
+The first step is always:
+
+Document
+     │
+     ▼
+Read Text
+
+That's today's lesson.
+
+🎓 AI Developer Bootcamp
+Module 7 — Lesson 3
+Building pdf_loader.py
+🎯 Goal
+
+By the end of this lesson you'll understand
+
+Why PDFs must be loaded first
+How PyPDF works
+How pages are extracted
+How to return text for chunking
+First Understand the Pipeline
+
+Suppose your company uploads
+
+Employee_Handbook.pdf
+
+Can the LLM directly read
+
+Employee_Handbook.pdf
+
+No.
+
+The LLM understands
+
+TEXT
+
+not PDF files.
+
+So we must convert
+
+PDF
+
+↓
+
+Plain Text
+
+↓
+
+Chunking
+Visual
+sample.pdf
+
+↓
+
+pdf_loader.py
+
+↓
+
+Plain Text
+
+↓
+
+chunking.py
+Step 1
+
+Open
+
+src/
+
+↓
+
+pdf_loader.py
+Step 2
+
+Import PyPDF
+
+from pypdf import PdfReader
+
+Question
+
+Why not
+
+import pypdf
+
+Because we only need
+
+PdfReader
+What is PdfReader?
+
+Think of it like
+
+open("sample.txt")
+
+For text files.
+
+For PDFs,
+
+PdfReader()
+
+opens the PDF.
+
+Step 3
+
+Create a function
+
+from pypdf import PdfReader
+
+def load_pdf(file_path):
+
+Question
+
+Why a function?
+
+Because later
+
+load_pdf("company.pdf")
+
+load_pdf("resume.pdf")
+
+load_pdf("book.pdf")
+
+The same function can read any PDF.
+
+Step 4
+
+Open the PDF
+
+reader = PdfReader(file_path)
+
+Think
+
+sample.pdf
+
+↓
+
+PdfReader
+
+↓
+
+Reader Object
+What is inside reader?
+
+It contains
+
+reader
+
+│
+
+├── metadata
+
+├── pages
+
+└── attachments
+
+Today we only need
+
+pages
+Step 5
+
+Create an empty string
+
+text = ""
+
+Why?
+
+Because every page will be added to this variable.
+
+Imagine
+
+Page 1
+
+↓
+
+text
+
+then
+
+Page 2
+
+↓
+
+text
+
+Finally
+
+All Pages
+
+↓
+
+One String
+Step 6
+
+Loop through pages
+
+for page in reader.pages:
+
+Question
+
+What is
+
+reader.pages
+
+Suppose
+
+PDF
+
+Page 1
+
+Page 2
+
+Page 3
+
+Then
+
+reader.pages
+
+acts like
+
+[
+Page1,
+
+Page2,
+
+Page3
+]
+
+So
+
+for page in reader.pages:
+
+means
+
+Take
+
+Page 1
+
+↓
+
+Page 2
+
+↓
+
+Page 3
+
+one by one.
+
+Step 7
+
+Extract text
+
+text += page.extract_text()
+
+This is the most important line.
+
+Let's understand it.
+
+Suppose
+
+Page 1 contains
+
+Python
+
+After first iteration
+
+text = "Python"
+
+Page 2 contains
+
+Java
+
+Now
+
+text += "Java"
+
+becomes
+
+PythonJava
+
+Better version
+
+text += page.extract_text() + "\n"
+
+Now
+
+Python
+
+Java
+
+Much cleaner.
+
+Step 8
+
+Return the text
+
+return text
+
+Now the function returns
+
+Entire PDF
+
+instead of
+
+PDF Object
+Complete Code
+from pypdf import PdfReader
+
+def load_pdf(file_path):
+
+    reader = PdfReader(file_path)
+
+    text = ""
+
+    for page in reader.pages:
+
+        text += page.extract_text() + "\n"
+
+    return text
+Step 9
+
+Open
+
+app.py
+
+Import
+
+from src.pdf_loader import load_pdf
+
+Call the function
+
+text = load_pdf("data/sample.pdf")
+
+Print
+
+print(text)
+Complete app.py
+from src.pdf_loader import load_pdf
+
+text = load_pdf("data/sample.pdf")
+
+print(text)
+What Happens Internally?
+sample.pdf
+
+↓
+
+PdfReader
+
+↓
+
+Page 1
+
+↓
+
+Extract Text
+
+↓
+
+Page 2
+
+↓
+
+Extract Text
+
+↓
+
+Page 3
+
+↓
+
+Extract Text
+
+↓
+
+One Large String
+
+↓
+
+app.py
+Output Example
+
+Suppose
+
+sample.pdf contains
+
+Python
+
+Java
+
+Docker
+
+Output
+
+Python
+
+Java
+
+Docker
+
+Congratulations.
+
+Your RAG application can now read PDFs.
+
+Why Not Send This Directly to the LLM?
+
+Suppose your PDF has
+
+500 Pages
+
+This becomes
+
+300,000 Characters
+
+Too large.
+
+LLMs have context limits.
+
+So next lesson we'll split it into small pieces.
+
+This process is called
+
+Chunking
+Interview Questions ⭐⭐⭐⭐⭐
+Q1. Why do we need a PDF loader in RAG?
+
+Professional Answer:
+
+A PDF loader extracts readable text from PDF documents. Since LLMs cannot process PDF files directly, the extracted text is used for chunking, embedding generation, and retrieval.
+
+Q2. What does PdfReader do?
+
+Professional Answer:
+
+PdfReader opens a PDF document and provides access to its pages, metadata, and other information. It allows us to extract text from each page programmatically.
+
+🎯 Mini Assignment
+
+Use your own PDF.
+
+For example,
+
+AI Notes.pdf
+
+or
+
+Python.pdf
+
+Change
+
+load_pdf("data/sample.pdf")
+
+to your PDF.
+
+Run it.
+
+Check whether all pages are printed correctly.
+
+🏆 Current Pipeline
+
+You've now completed:
+
+PDF
+ │
+ ▼
+pdf_loader.py ✅
+ │
+ ▼
+Plain Text
+ │
+ ▼
+Chunking ❌
+ │
+ ▼
+Embeddings ❌
+ │
+ ▼
+ChromaDB ❌
+ │
+ ▼
+Retriever ❌
+ │
+ ▼
+LLM ❌
+🚀 Next Lesson (Lesson 4 – Chunking)
+
+This is where you'll understand why everyone talks about "chunks" in RAG.
+
+We'll answer questions like:
+
+Why not embed the whole PDF?
+What is a chunk?
+What is chunk overlap?
+How do we choose chunk size?
+Why does poor chunking lead to poor AI answers?
+
+By the end of that lesson, you'll build a reusable chunking.py module that prepares documents for embedding—the same approach used in production frameworks like LangChain and LlamaIndex.
+
+
+This lesson is one of the most important lessons in the entire RAG pipeline.
+
+Many beginners think RAG means:
+
+PDF
+ ↓
+Embedding
+ ↓
+LLM
+
+❌ This is wrong.
+
+The correct pipeline is:
+
+PDF
+ ↓
+Chunking ⭐⭐⭐⭐⭐
+ ↓
+Embeddings
+ ↓
+Vector Database
+ ↓
+Retriever
+ ↓
+LLM
+
+If your chunking is poor, even GPT-5 or Claude or Gemini won't give good answers because they only answer based on the retrieved chunks.
+
+🎓 AI Developer Bootcamp
+Module 7 – Lesson 4
+📚 Chunking
+🎯 Lesson Goal
+
+By the end of this lesson you'll understand:
+
+✅ What is a Chunk?
+✅ Why Chunking is needed
+✅ Chunk Size
+✅ Chunk Overlap
+✅ How to build your own chunker
+✅ How companies chunk documents
+First Question
+
+Suppose your PDF contains
+
+Page 1
+
+Python is a programming language.
+
+It is easy to learn.
+
+It supports AI.
+
+It supports Data Science.
+
+It supports Automation.
+
+It supports Web Development.
+
+...500 Pages...
+
+Question:
+
+Should we generate ONE embedding for all 500 pages?
+
+Answer
+
+❌ No.
+
+Why?
+
+Because an embedding represents one semantic meaning.
+
+If we embed the entire PDF:
+
+Python
+
+Java
+
+Docker
+
+AWS
+
+Kubernetes
+
+Linux
+
+React
+
+HR Policy
+
+Leave Policy
+
+Finance
+
+...
+
+One vector tries to represent everything.
+
+That vector becomes too general.
+
+Real Life Example
+
+Imagine a book.
+
+1000 Pages
+
+You ask:
+
+"What is Docker?"
+
+Should AI search all 1000 pages?
+
+No.
+
+Instead
+
+Book
+
+↓
+
+Page 245
+
+↓
+
+Docker Chapter
+
+↓
+
+Answer
+Solution
+
+Split the document.
+
+This is called
+
+⭐ Chunking
+
+Visual
+
+PDF
+
+↓
+
+Chunk 1
+
+↓
+
+Chunk 2
+
+↓
+
+Chunk 3
+
+↓
+
+Chunk 4
+
+Each chunk gets
+
+its own embedding.
+
+Example
+
+Suppose the PDF says
+
+Python is easy.
+
+Python supports AI.
+
+Java is object oriented.
+
+Docker packages applications.
+
+AWS provides cloud services.
+
+Instead of one document
+
+we create
+
+Chunk 1
+
+Python is easy.
+
+Python supports AI.
+
+--------------------
+
+Chunk 2
+
+Java is object oriented.
+
+--------------------
+
+Chunk 3
+
+Docker packages applications.
+
+AWS provides cloud services.
+
+Now
+
+each chunk
+
+↓
+
+One embedding.
+
+Why is this better?
+
+User asks
+
+"What is Docker?"
+
+ChromaDB compares against
+
+Chunk 1
+
+Python
+
+❌
+
+------------
+
+Chunk 2
+
+Java
+
+❌
+
+------------
+
+Chunk 3
+
+Docker
+
+✅
+
+Retrieval becomes much more accurate.
+
+What is Chunk Size?
+
+Question.
+
+How big should a chunk be?
+
+Suppose
+
+1000 characters
+
+Should we split every
+
+5 characters
+
+?
+
+Example
+
+Pytho
+
+n is
+
+a pro
+
+gramm
+
+ing
+
+Impossible.
+
+Meaning is destroyed.
+
+Should we split every
+
+50000 characters
+
+?
+
+Again
+
+No.
+
+Too much information.
+
+Companies choose something like
+
+500 Characters
+
+1000 Characters
+
+1500 Characters
+
+depending on the use case.
+
+Visual
+
+Small Chunk
+
+Python is easy.
+
+Good for
+
+Precise retrieval.
+
+Huge Chunk
+
+Entire Chapter
+
+Good for
+
+Context
+
+Bad for retrieval.
+
+What is Chunk Overlap?
+
+One of the most important concepts.
+
+Suppose
+
+Chunk size
+
+100 characters
+
+Document
+
+Python is a programming language.
+
+It is widely used in AI.
+
+It is also used in Web Development.
+
+Without overlap
+
+Chunk 1
+
+Python is a programming language.
+
+-----------------
+
+Chunk 2
+
+It is widely used in AI.
+
+-----------------
+
+Chunk 3
+
+It is also used in Web Development.
+
+Notice
+
+Chunk 2 starts with
+
+It
+
+Question
+
+Who is
+
+"It"?
+
+Python?
+
+Java?
+
+Docker?
+
+Meaning is lost.
+
+Solution
+
+Overlap.
+
+Example
+
+Chunk 1
+
+Python is a programming language.
+
+---------------------
+
+Chunk 2
+
+programming language.
+
+It is widely used in AI.
+
+---------------------
+
+Chunk 3
+
+widely used in AI.
+
+It is also used in Web Development.
+
+Now
+
+every chunk remembers
+
+some previous context.
+
+Visual
+
+Without overlap
+
+AAAA BBBB
+
+CCCC DDDD
+
+EEEE FFFF
+
+Meaning breaks.
+
+With overlap
+
+AAAA BBBB
+
+BBBB CCCC
+
+CCCC DDDD
+
+DDDD EEEE
+
+Much better.
+
+Step 1
+
+Open
+
+src/
+
+↓
+
+chunking.py
+Step 2
+
+Create
+
+def chunk_text(text,
+               chunk_size=500):
+
+Question
+
+Why a function?
+
+Because later
+
+chunk_text(pdf)
+
+chunk_text(book)
+
+chunk_text(notes)
+
+Everything uses the same logic.
+
+Step 3
+
+Create an empty list
+
+chunks = []
+
+This will store
+
+all chunks.
+
+Step 4
+
+Loop
+
+for i in range(
+    0,
+    len(text),
+    chunk_size
+):
+
+Let's understand.
+
+Suppose
+
+Text
+
+1000 Characters
+
+Chunk size
+
+200
+
+Python generates
+
+0
+
+200
+
+400
+
+600
+
+800
+
+Exactly what we need.
+
+Step 5
+
+Slice
+
+chunk = text[
+    i:i+chunk_size
+]
+
+Suppose
+
+chunk_size=10
+
+Text
+
+ABCDEFGHIJKLMN
+
+Iteration 1
+
+A B C D E F G H I J
+
+Iteration 2
+
+K L M N
+
+Simple slicing.
+
+Step 6
+
+Append
+
+chunks.append(chunk)
+
+Now
+
+chunks
+
+↓
+
+[
+Chunk1,
+
+Chunk2,
+
+Chunk3
+]
+Step 7
+
+Return
+
+return chunks
+Complete Code
+def chunk_text(text, chunk_size=500):
+
+    chunks = []
+
+    for i in range(0, len(text), chunk_size):
+
+        chunk = text[i:i+chunk_size]
+
+        chunks.append(chunk)
+
+    return chunks
+Step 8
+
+Open
+
+app.py
+
+Import
+
+from src.chunking import chunk_text
+
+After
+
+text = load_pdf(
+    "data/sample.pdf"
+)
+
+write
+
+chunks = chunk_text(
+    text,
+    chunk_size=500
+)
+
+Print
+
+print(len(chunks))
+
+Then
+
+for index, chunk in enumerate(chunks):
+
+    print("=" * 50)
+
+    print(f"Chunk {index+1}")
+
+    print(chunk)
+Output
+Chunk 1
+
+Python...
+
+----------------
+
+Chunk 2
+
+Java...
+
+----------------
+
+Chunk 3
+
+Docker...
+
+Congratulations.
+
+You have officially built
+
+a document chunker.
+
+Why Our Chunker Is Still Simple
+
+The chunker you built works, but it has a limitation.
+
+Imagine this sentence:
+
+Artificial Intelligence is transforming healthcare and finance.
+
+If the character limit falls in the middle:
+
+Artificial Intelligence is trans
+
+forming healthcare and finance.
+
+The sentence gets broken, making retrieval less effective.
+
+Production systems avoid this by splitting at sentence or paragraph boundaries and by adding overlap.
+
+We'll improve our chunker in later lessons.
+
+Interview Questions ⭐⭐⭐⭐⭐
+Q1. What is chunking?
+
+Professional Answer:
+
+Chunking is the process of dividing a large document into smaller, meaningful pieces before generating embeddings. This improves semantic retrieval accuracy and ensures that relevant context is returned during RAG.
+
+Q2. Why don't we embed the entire PDF?
+
+Professional Answer:
+
+Embedding an entire PDF creates a single vector representing many different topics, which reduces retrieval quality. Smaller chunks preserve semantic meaning and allow more precise searches.
+
+Q3. What is chunk overlap?
+
+Professional Answer:
+
+Chunk overlap is the practice of repeating a portion of the previous chunk in the next chunk. It preserves context across chunk boundaries and improves retrieval quality.
+
+🧠 Industry Insight
+
+Our manual chunker helps you understand the concept, but production systems rarely implement chunking from scratch.
+
+Frameworks like LangChain provide text splitters such as RecursiveCharacterTextSplitter, which preserve sentence boundaries and support configurable chunk sizes and overlaps. You'll learn those after you've mastered the underlying logic.
+
+🎯 Assignment
+Implement chunk_text() exactly as shown.
+Load your sample.pdf.
+Print:
+Total number of chunks.
+Every chunk.
+Experiment with:
+chunk_size=200
+chunk_size=500
+chunk_size=1000
+
+Observe how the number of chunks changes and think about the trade-off between retrieval precision and context.
+
+🚀 Next Lesson (Lesson 5 – Smarter Chunking with Overlap)
+
+We'll upgrade your chunker to support:
+
+chunk_text(
+    text,
+    chunk_size=500,
+    overlap=100
+)
+
+This is the approach used in production RAG systems because it preserves context across chunk boundaries and significantly improves retrieval quality. After that, we'll connect those chunks to your embedding model and begin building the complete ingestion pipeline.
+
+
