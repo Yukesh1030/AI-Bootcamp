@@ -2035,3 +2035,517 @@ chunk_text(
 This is the approach used in production RAG systems because it preserves context across chunk boundaries and significantly improves retrieval quality. After that, we'll connect those chunks to your embedding model and begin building the complete ingestion pipeline.
 
 
+
+Lesson 5 – Smarter Chunking with Overlap
+
+This is how production RAG systems prepare documents before generating embeddings.
+
+📍 What We Built Last Lesson
+
+Our chunker:
+
+def chunk_text(text, chunk_size=500):
+
+    chunks = []
+
+    for i in range(0, len(text), chunk_size):
+
+        chunk = text[i:i+chunk_size]
+
+        chunks.append(chunk)
+
+    return chunks
+
+Works?
+
+✅ Yes.
+
+Production Ready?
+
+❌ No.
+
+Let's understand why.
+
+Problem 1 — Sentence Breaking
+
+Imagine your PDF contains:
+
+Python is a programming language.
+
+It is widely used in Artificial Intelligence.
+
+It is also used in Web Development.
+
+Suppose
+
+chunk_size = 45
+
+Your chunk becomes
+
+Chunk 1
+
+Python is a programming language.
+It is wi
+
+Next chunk
+
+Chunk 2
+
+dely used in Artificial Intelligence.
+
+Question:
+
+Does Chunk 2 make sense?
+
+No.
+
+It starts with
+
+dely used...
+
+The first word is broken.
+
+Problem 2 — Context Loss
+
+Imagine this paragraph.
+
+Artificial Intelligence is transforming healthcare.
+
+It helps doctors detect diseases earlier.
+
+Machine learning models analyze medical images.
+
+Without overlap
+
+Chunk 1
+
+Artificial Intelligence is transforming healthcare.
+
+-------------------
+
+Chunk 2
+
+It helps doctors detect diseases earlier.
+
+Question
+
+Who is
+
+It
+
+?
+
+Doctor?
+
+Python?
+
+Artificial Intelligence?
+
+Meaning is lost.
+
+Solution
+
+Instead of
+
+Chunk 1
+
+AAAAAAAAAA
+
+Chunk 2
+
+BBBBBBBBBB
+
+We'll do
+
+Chunk 1
+
+AAAAAAAAAA
+
+Chunk 2
+
+AAAAABBBBB
+
+Chunk 3
+
+BBBBBCCCCC
+
+Some part of the previous chunk is repeated.
+
+This repeated part is called
+
+⭐ Overlap
+Why Overlap Works
+
+Imagine reading a novel.
+
+Page 1 ends with
+
+The detective opened the...
+
+Page 2 starts with
+
+...door and discovered...
+
+If page 2 instead starts with
+
+door and discovered...
+
+without "opened the",
+
+the sentence feels disconnected.
+
+Overlap keeps the flow intact.
+
+Visual
+
+Without overlap
+
+Chunk 1
+
+Python is used
+
+------------
+
+Chunk 2
+
+for AI applications
+
+With overlap
+
+Chunk 1
+
+Python is used
+
+------------
+
+Chunk 2
+
+is used for AI applications
+
+Now Chunk 2 still contains enough context.
+
+Production Logic
+
+Suppose
+
+Chunk Size = 500
+
+Overlap = 100
+
+Visual
+
+Characters
+
+0 -------------------- 500
+
+            ▲
+        overlap
+
+400 -------------------- 900
+
+            ▲
+        overlap
+
+800 -------------------- 1300
+
+Notice
+
+Every new chunk starts 100 characters before the previous one ended.
+
+Let's Build It
+
+Open
+
+src/chunking.py
+
+Replace your old function.
+
+Step 1
+def chunk_text(
+    text,
+    chunk_size=500,
+    overlap=100
+):
+
+Question
+
+Why default overlap?
+
+Because later
+
+chunk_text(text)
+
+still works.
+
+Step 2
+
+Create list
+
+chunks = []
+Step 3
+
+Initialize starting position
+
+start = 0
+
+Unlike the previous version, we won't use range() because the next starting point depends on the overlap.
+
+Step 4
+
+Loop
+
+while start < len(text):
+
+Meaning:
+
+Continue until we reach the end of the document.
+
+Step 5
+
+Calculate end
+
+end = start + chunk_size
+Step 6
+
+Extract chunk
+
+chunk = text[start:end]
+Step 7
+
+Store chunk
+
+chunks.append(chunk)
+Step 8
+
+Move forward
+
+This is the most important line.
+
+start = end - overlap
+
+Suppose
+
+chunk_size = 500
+
+overlap = 100
+
+First chunk
+
+0 → 500
+
+Next start
+
+500 - 100
+
+↓
+
+400
+
+Second chunk
+
+400 → 900
+
+Exactly what we wanted.
+
+Step 9
+
+Return
+
+return chunks
+Complete Function
+def chunk_text(
+    text,
+    chunk_size=500,
+    overlap=100
+):
+
+    chunks = []
+
+    start = 0
+
+    while start < len(text):
+
+        end = start + chunk_size
+
+        chunk = text[start:end]
+
+        chunks.append(chunk)
+
+        start = end - overlap
+
+    return chunks
+Test It
+
+In
+
+app.py
+chunks = chunk_text(
+    text,
+    chunk_size=300,
+    overlap=50
+)
+
+Print
+
+for i, chunk in enumerate(chunks):
+
+    print("=" * 60)
+
+    print(f"Chunk {i+1}")
+
+    print(chunk)
+
+Look carefully.
+
+You'll notice
+
+The last 50 characters of Chunk 1 appear again at the beginning of Chunk 2.
+
+Example
+
+Original text
+
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+Suppose
+
+Chunk Size = 10
+
+Overlap = 3
+
+Output
+
+Chunk 1
+
+ABCDEFGHIJ
+
+---------------
+
+Chunk 2
+
+HIJKLMNOPQ
+
+---------------
+
+Chunk 3
+
+OPQRSTUVWX
+
+---------------
+
+Chunk 4
+
+VWXYZ
+
+Notice
+
+HIJ
+
+appears twice.
+
+That's overlap.
+
+Why Doesn't This Waste Space?
+
+It does create duplicate text.
+
+But the benefit is much greater:
+
+Better context
+Better retrieval
+Better LLM answers
+
+A small amount of duplication is worth the improved quality.
+
+Industry Best Practices
+
+Typical settings:
+
+Document Type	Chunk Size	Overlap
+PDFs	500–1000	100–200
+Technical Docs	800	150
+Books	1000	200
+Source Code	300–500	50–100
+
+There isn't one perfect value. Teams experiment based on the type of content and the model they're using.
+
+Interview Questions ⭐⭐⭐⭐⭐
+Q1. Why is overlap used?
+
+Professional Answer:
+
+Overlap preserves context between adjacent chunks. Without overlap, important information may be split across chunk boundaries, reducing retrieval quality and leading to incomplete answers from the LLM.
+
+Q2. Does overlap increase storage?
+
+Answer:
+
+Yes. Some text is intentionally duplicated across chunks. This slightly increases storage but significantly improves semantic retrieval accuracy.
+
+🧠 Architecture After Today's Lesson
+PDF
+ │
+ ▼
+pdf_loader.py
+ │
+ ▼
+chunking.py
+(Chunk Size + Overlap) ✅
+ │
+ ▼
+Chunks
+ │
+ ▼
+Embeddings
+ │
+ ▼
+ChromaDB
+ │
+ ▼
+Retriever
+ │
+ ▼
+LLM
+🎯 Mini Assignment
+
+Test the same PDF with these settings:
+
+chunk_size=300
+overlap=50
+
+Then:
+
+chunk_size=500
+overlap=100
+
+Finally:
+
+chunk_size=1000
+overlap=200
+
+For each run, compare:
+
+Number of chunks generated.
+Whether adjacent chunks share overlapping text.
+Which configuration seems most readable.
+🚀 Next Lesson (One of the Biggest Milestones)
+
+We'll build embeddings.py.
+
+For the first time, your pipeline will become:
+
+PDF
+ │
+ ▼
+Text
+ │
+ ▼
+Smart Chunks
+ │
+ ▼
+SentenceTransformer
+ │
+ ▼
+384-Dimensional Vectors
+
+After that lesson, your RAG ingestion pipeline will be producing the same kind of embeddings that are stored in production vector databases before retrieval. This is the point where your application starts becoming a real document intelligence system rather than just a document reader.
